@@ -1,4 +1,4 @@
-import 'package:coding_challenge/bloc/ptbbloc_bloc.dart';
+import 'package:coding_challenge/bloc/ptb_bloc.dart';
 import 'package:coding_challenge/models/ptb.dart';
 import 'package:coding_challenge/ui/colors.dart';
 import 'package:coding_challenge/ui/text.dart';
@@ -11,22 +11,19 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-        ),
         body: Container(
           color: Colors.black,
           height: 600,
           child: BlocBuilder<PTBBloc, PTBState>(
             builder: (context, state) {
-              if (state is PTBErrorState) {
-                return PTBError(state: state);
-              } else if (state is PTBSuccessState) {
-                return PTBSuccess(state: state);
-              } else {
-                return const PTBLoading();
-              }
-            },
+              if (state is ErrorPTBState) {
+            return PTBError(state: state);
+          } else if (state is SuccessPTBState) {
+            return PTBSuccess(state: state);
+          } else {
+            return const PTBLoading();
+          }
+        },
           ),
         ) // This trailing comma makes auto-formatting nicer for build methods.
         );
@@ -34,7 +31,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class PTBSuccess extends StatelessWidget {
-  final PTBSuccessState state;
+  final SuccessPTBState state;
 
   const PTBSuccess({Key? key, required this.state}) : super(key: key);
 
@@ -44,20 +41,27 @@ class PTBSuccess extends StatelessWidget {
       Positioned.fill(
           child: Image.network(state.selectedItem.covers.first.url,
               fit: BoxFit.cover)),
+      Positioned.fill(
+        child: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+          Colors.black.withOpacity(.7),
+          Colors.transparent
+        ]))),
+      ),
       Positioned(
         bottom: 16,
-        left: 16,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: 16, left: 16),
               child: Text(state.selectedItem.label, style: white36Bold),
             ),
             Padding(
-                padding: const EdgeInsets.only(bottom: 32),
+                padding: const EdgeInsets.only(bottom: 24, left: 16),
                 child: ConstrainedBox(
                     constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * .6),
@@ -86,6 +90,7 @@ class PTBItemList extends StatelessWidget {
       constraints: BoxConstraints(
           maxHeight: 270, maxWidth: MediaQuery.of(context).size.width),
       child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           scrollDirection: Axis.horizontal,
           itemCount: items.length,
           separatorBuilder: (_, __) =>
@@ -103,44 +108,51 @@ class PTBItemListIndex extends StatelessWidget {
   const PTBItemListIndex({Key? key, required this.item, this.selected = false})
       : super(key: key);
 
+  void _onSelect(BuildContext context) =>
+      BlocProvider.of<PTBBloc>(context).add(SelectPTBEvent(item: item));
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: SizedBox(
-            width: 370,
-            height: selected ? 220 : 200,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                    child: Container(
-                  decoration: BoxDecoration(
+    return InkWell(
+      onTap: () => _onSelect(context),
+      onHover: (_) => _onSelect(context),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: SizedBox(
+              width: 370,
+              height: selected ? 220 : 200,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                      child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(7),
+                        border: selected
+                            ? Border.all(color: ptbYellow, width: 4)
+                            : null),
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(7),
-                      border: selected
-                          ? Border.all(color: ptbYellow, width: 4)
-                          : null),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(7),
-                    child:
-                        Image.network(item.covers.first.url, fit: BoxFit.cover),
-                  ),
-                )),
-                Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: PTBBadgeIndicator(
-                        badge: item.badge, highlight: selected)),
-              ],
+                      child: Image.network(item.covers.first.url,
+                          fit: BoxFit.cover),
+                    ),
+                  )),
+                  Positioned(
+                      left: 16,
+                      bottom: 16,
+                      child: PTBBadgeIndicator(
+                          badge: item.badge, highlight: selected)),
+                ],
+              ),
             ),
           ),
-        ),
-        Text(item.label, style: white20Medium)
-      ],
+          Text(item.label, style: white20Medium)
+        ],
+      ),
     );
   }
 }
@@ -174,7 +186,7 @@ class PTBLoading extends StatelessWidget {
 }
 
 class PTBError extends StatelessWidget {
-  final PTBErrorState state;
+  final ErrorPTBState state;
 
   const PTBError({Key? key, required this.state}) : super(key: key);
 
@@ -188,7 +200,7 @@ class PTBError extends StatelessWidget {
           const Text("Error loading, please try again"),
           ElevatedButton(
               onPressed: () =>
-                  BlocProvider.of<PTBBloc>(context).add(PTBInitializeEvent()),
+                  BlocProvider.of<PTBBloc>(context).add(InitializePTBEvent()),
               child: const Text("Reload"))
         ]);
   }
