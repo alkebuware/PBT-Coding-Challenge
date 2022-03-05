@@ -1,6 +1,7 @@
 import 'package:coding_challenge/bloc/ptbbloc_bloc.dart';
 import 'package:coding_challenge/models/ptb.dart';
 import 'package:coding_challenge/ui/colors.dart';
+import 'package:coding_challenge/ui/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -53,11 +54,17 @@ class PTBSuccess extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: Text(state.selectedItem.label),
+              child: Text(state.selectedItem.label, style: white36Bold),
             ),
             Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(state.selectedItem.description)),
+                padding: const EdgeInsets.only(bottom: 32),
+                child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * .6),
+                    child: Text(state.selectedItem.description,
+                        maxLines: 2,
+                        style: white20Medium,
+                        overflow: TextOverflow.ellipsis))),
             PTBItemList(items: state.items, selectedItem: state.selectedItem)
           ],
         ),
@@ -77,12 +84,12 @@ class PTBItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-          maxHeight: 250, maxWidth: MediaQuery.of(context).size.width),
+          maxHeight: 270, maxWidth: MediaQuery.of(context).size.width),
       child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: items.length,
           separatorBuilder: (_, __) =>
-              SizedBox.fromSize(size: const Size.fromWidth(16)),
+              SizedBox.fromSize(size: const Size.fromWidth(8)),
           itemBuilder: (context, index) => PTBItemListIndex(
               item: items[index], selected: items[index] == selectedItem)),
     );
@@ -100,22 +107,31 @@ class PTBItemListIndex extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: SizedBox(
             width: 370,
-            height: 200,
+            height: selected ? 220 : 200,
             child: Stack(
               children: [
                 Positioned.fill(
-                    child: ClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child:
-                      Image.network(item.covers.first.url, fit: BoxFit.cover),
+                    child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      border: selected
+                          ? Border.all(color: ptbYellow, width: 4)
+                          : null),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+                    child:
+                        Image.network(item.covers.first.url, fit: BoxFit.cover),
+                  ),
                 )),
                 Positioned(
-                    left: 8,
+                    left: 16,
                     bottom: 16,
                     child: PTBBadgeIndicator(
                         badge: item.badge, highlight: selected)),
@@ -123,7 +139,7 @@ class PTBItemListIndex extends StatelessWidget {
             ),
           ),
         ),
-        Flexible(child: Text(item.label))
+        Text(item.label, style: white20Medium)
       ],
     );
   }
@@ -144,7 +160,7 @@ class PTBBadgeIndicator extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
             color: backgroundColor, borderRadius: BorderRadius.circular(7)),
-        child: Text(badge.badgeText));
+        child: Text(badge.badgeText, style: white20));
   }
 }
 
