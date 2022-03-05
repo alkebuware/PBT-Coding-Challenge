@@ -9,6 +9,7 @@ environment:
 dependencies:
   bloc: 8.0.3
   copy_with_extension: 4.0.0
+  cross_fade: 0.3.1
   dio: 4.0.4
   equatable: 2.0.3
   flutter:
@@ -16,6 +17,7 @@ dependencies:
   flutter_bloc: 8.0.1
   json_annotation: 4.4.0
   retrofit: 3.0.1+1
+  transparent_image: 2.0.0
 
 dev_dependencies:
   build_runner: 2.1.7

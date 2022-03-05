@@ -2,6 +2,7 @@ import 'package:coding_challenge/bloc/ptb_bloc.dart';
 import 'package:coding_challenge/models/ptb.dart';
 import 'package:coding_challenge/ui/colors.dart';
 import 'package:coding_challenge/ui/text.dart';
+import 'package:cross_fade/cross_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,11 +13,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-          color: Colors.black,
-          height: 600,
-          child: BlocBuilder<PTBBloc, PTBState>(
-            builder: (context, state) {
-              if (state is ErrorPTBState) {
+      color: Colors.black,
+      height: 600,
+      child: BlocBuilder<PTBBloc, PTBState>(
+        builder: (context, state) {
+          if (state is ErrorPTBState) {
             return PTBError(state: state);
           } else if (state is SuccessPTBState) {
             return PTBSuccess(state: state);
@@ -24,8 +25,8 @@ class HomeScreen extends StatelessWidget {
             return const PTBLoading();
           }
         },
-          ),
-        ) // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+    ) // This trailing comma makes auto-formatting nicer for build methods.
         );
   }
 }
@@ -39,8 +40,11 @@ class PTBSuccess extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(children: [
       Positioned.fill(
-          child: Image.network(state.selectedItem.covers.first.url,
-              fit: BoxFit.cover)),
+        child: CrossFade<String>(
+            duration: const Duration(milliseconds: 300),
+            value: state.selectedItem.covers.first.url,
+            builder: (context, url) => Image.network(url, fit: BoxFit.cover)),
+      ),
       Positioned.fill(
         child: Container(
             decoration: BoxDecoration(
