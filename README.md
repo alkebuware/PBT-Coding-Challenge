@@ -1,4 +1,4 @@
-# PBT Coding Challenge
+# PTB Coding Challenge
 
 This repo demonstrates my ability to produce a complex UI in Flutter based on the below mock up.
 ![Mock Up](image2.png)
